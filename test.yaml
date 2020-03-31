@@ -1,0 +1,2237 @@
+info:
+  title: "Washington"
+  version: "5.0.0"
+  description: "API Documentation for Central server."
+swagger: "2.0"
+paths:
+  /api/v1/card/addCardSecure:
+    post:
+      tags:
+        - "Core"
+      summary: "Adds a new card"
+      description: "Adds a card to the database. It is important to note that addCardSecure service is located on the API Listener, rather than Central."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "number"
+            properties:
+              number:
+                type: "integer"
+                description: "Card number to be added"
+                maxLength: 19
+                example: 12340000001234
+              name:
+                type: "string"
+                description: "Card name"
+                example: "John Doe"
+              statementDate:
+                type: "integer"
+                description: "Due date of the card statement, recommended when using limits for credit."
+                example: 31
+              userId:
+                type: "string"
+                description: "Used by issuer to relate cards to a customer"
+                example: "testId"
+              documentType:
+                type: "string"
+                description: "String representing the type of document number entered for userId"
+                example: "C"
+              organizationCode:
+                type: "string"
+                description: "String representing the affiliated business entity code"
+                example: "ORG_Code"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              status_code: 0
+              http_code: 200
+              hash: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+        201:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              status_code: 0
+              http_code: 201
+              hash: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 201
+                description: "Returns HTTP code 201"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Number"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Returns Missing Resource: Number"
+                example: "Missing Resource: Number"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: Number"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: Number"
+                example: "Invalid Resource: Number"
+  /api/v1/card/getCardHash:
+    post:
+      tags:
+        - "Core"
+      summary: "Hashes card number"
+      description: "Calculates and returns the SHA-256 salted hash of the given card number"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "number"
+            properties:
+              number:
+                type: "string"
+                description: "Card number"
+                example: "12340000001234"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              status_code: 0
+              http_code: 200
+              hash: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              status_message: "Missing Resource: Card Number"
+              http_code: 400
+              status_code: 101
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101 for missing resources, 102 for invalid resources"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Missing Resource: Card Number"
+                example: "Missing Resource: Card Number"
+        400-B:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              status_message: "Invalid Resource: Card Number"
+              http_code: 400
+              status_code: 102
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns status code 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Invalid Resource: Card Number"
+                example: "Invalid Resource: Card Number"
+  /api/v1/card/getCardData:
+    post:
+      tags:
+        - "Core"
+      summary: "Retrieves card data"
+      description: "Retrieves the Card Data"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+            properties:
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              status_code: 0
+              http_code: 200
+              card:
+                card_id: 1
+                data:
+                  cardEnabled: true
+                  payment_channels:
+                    ATM: 1
+                    POS: 1
+                    ECOM: 1
+                    MOTO: 1
+                  country: "840,4,248,8,12,16,20,24,660,10,28,32,51,533,36,40,31,44,48,50,52,112,56,84,204,60,64,68,535,70,72,74,76,86,96,100,854,108,116,120,124,132,136,140,148,152,156,162,166,170,174,178,180,184,188,384,191,192,531,196,203,208,262,212,214,218,818,222,226,232,233,231,238,234,242,246,250,254,258,260,266,270,268,276,288,292,300,304,308,312,316,320,831,324,624,328,332,334,336,340,344,348,352,356,360,364,368,372,833,376,380,388,392,832,400,398,404,296,408,410,414,417,418,428,422,426,430,434,438,440,442,446,807,450,454,458,462,466,470,584,474,478,480,175,484,583,498,492,496,499,500,504,508,104,516,520,524,528,540,554,558,562,566,570,574,580,578,512,586,585,275,591,598,600,604,608,612,616,620,630,634,638,642,643,646,652,654,659,662,663,666,670,882,674,678,682,686,688,690,694,702,534,703,705,90,706,710,239,728,724,144,729,740,744,748,752,756,760,158,762,834,764,626,768,772,776,780,788,792,795,796,798,800,804,784,826,581,858,860,548,862,704,92,850,876,732,887,894,716"
+                  state: "VI,PR"
+                date_updated: "2016-09-16 14:33:24"
+                enabled: 1
+                name: "Test Visa"
+                number: "1234000000001234"
+                autoenabledCountry: "840"
+                autoenabledState: "CA"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              card:
+                type: "object"
+                properties:
+                  card_id:
+                    type: "integer"
+                    description: "Card ID"
+                    example: 1
+                  data:
+                    type: "object"
+                    description: "JSON containing card settings"
+                    properties:
+                      cardEnabled:
+                        type: "boolean"
+                        example: true
+                      payment_channels:
+                        properties:
+                          ATM:
+                            type: "integer"
+                            format: "int32"
+                            description: "Allow automated teller machine (ATM) transactions"
+                            example: 1
+                          ECOM:
+                            type: "integer"
+                            format: "int32"
+                            description: "Allow e-commerce transactions"
+                            example: 1
+                          POS:
+                            type: "integer"
+                            format: "int32"
+                            description: "Allow point-of-sale (POS) transactions"
+                            example: 1
+                          MOTO:
+                            type: "integer"
+                            format: "int32"
+                            description: "Allow mail-order/phone-order (MOTO) transactions"
+                            example: 1
+                      country:
+                        type: "string"
+                        description: "ISO 3166-1 numeric country code"
+                        example: "840,4,248,8,12,16,20,24,660,10,28,32,51,533,36,40,31,44,48,50,52,112,56,84,204,60,64,68,535,70,72,74,76,86,96,100,854,108,116,120,124,132,136,140,148,152,156,162,166,170,174,178,180,184,188,384,191,192,531,196,203,208,262,212,214,218,818,222,226,232,233,231,238,234,242,246,250,254,258,260,266,270,268,276,288,292,300,304,308,312,316,320,831,324,624,328,332,334,336,340,344,348,352,356,360,364,368,372,833,376,380,388,392,832,400,398,404,296,408,410,414,417,418,428,422,426,430,434,438,440,442,446,807,450,454,458,462,466,470,584,474,478,480,175,484,583,498,492,496,499,500,504,508,104,516,520,524,528,540,554,558,562,566,570,574,580,578,512,586,585,275,591,598,600,604,608,612,616,620,630,634,638,642,643,646,652,654,659,662,663,666,670,882,674,678,682,686,688,690,694,702,534,703,705,90,706,710,239,728,724,144,729,740,744,748,752,756,760,158,762,834,764,626,768,772,776,780,788,792,795,796,798,800,804,784,826,581,858,860,548,862,704,92,850,876,732,887,894,716"
+                      state:
+                        type: "string"
+                        example: "VI,PR"
+                  date_updated:
+                    type: "string"
+                    format: "date-time"
+                    description: "Timestamp when card was last updated"
+                    example: "2016-09-16 14:33:24"
+                  enabled:
+                    type: "integer"
+                    description: "Binary number indicating card On/Off status"
+                    example: 1
+                  name:
+                    type: "string"
+                    description: "Card name"
+                    example: "Test Visa"
+                  number:
+                    type: "string"
+                    description: "Redacted card number"
+                    example: "1234000000001234"
+                  autoenabledCountry:
+                    type: "string"
+                    description: "Auto enabled country"
+                    example: "840"
+                  autoenabledState:
+                    type: "string"
+                    description: "Auto enabled state"
+                    example: "CA"
+        400:
+          description: "Error - Validation on missing or invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              status_message: "Missing Resource: Card Hash"
+              http_code: 400
+              status_code: 101
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101 for missing resources, 102 for invalid resources"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Returns Missing or Invalid Resource: (RESOURCE), where (RESOURCE) is hash"
+                example: "Missing Resource: Card Hash"
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+  /api/v1/cardSettings/setEnabled:
+    post:
+      tags:
+        - "Card Controls"
+      summary: "Enables a Card"
+      description: "Sets the enabled property of a particular card."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+              - "enabled"
+            properties:
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+              enabled:
+                type: "integer"
+                description: "Binary value of card on/off status"
+                example: 1
+          description: "Request object"
+      responses:
+        201:
+          description: "Success - Responds successfully with the field(s) created/updated"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 201
+              status_code: 0
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns SUCCESS"
+                example: "SUCCESS"
+              http_code:
+                type: "integer"
+                description: "Returns 201"
+                example: 201
+              status_code:
+                type: "integer"
+                description: "Returns 0"
+                example: 0
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                description: "Returns Missing Resource: Card Hash"
+                example: "Missing Resource: Card Hash"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                description: "Returns Invalid Resource: Card Hash"
+                example: "Invalid Resource: Card Hash"
+        400-C:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Enabled"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_message:
+                type: "string"
+                description: "Returns Missing Resource: Enabled"
+                example: "Missing Resource: Enabled"
+  /api/v1/cardSettings/getEnabled:
+    post:
+      tags:
+        - "Card Controls"
+      summary: "Retrieves card enable value"
+      description: "Retrieves card enable value"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+            properties:
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Card On/Off status"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              enabled: 1
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              enabled:
+                type: "integer"
+                description: "Binary indicating card on/off status"
+                example: 1
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                description: "Returns Missing Resource: Card Hash"
+                example: "Missing Resource: Card Hash"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                description: "Returns Invalid Resource: Card Hash"
+                example: "Invalid Resource: Card Hash"
+  /api/v1/subscriptions/{id}:
+    delete:
+      tags:
+        - "Alerts"
+      summary: "Delete a specific subscription record, a.k.a. unsubscribe from a specific alert type"
+      description: "Deletes subscription specified by the id in the path"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "id"
+          in: "path"
+          required: false
+          type: "integer"
+          description: "Subscription ID"
+      responses:
+        204:
+          description: "Success - Responds successfully with the field(s) created/updated"
+          examples:
+            application/json:
+              http_code: 204
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                description: "Returns 204"
+                example: 204
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        404:
+          description: "Error - Not Found"
+          examples:
+            application/json:
+              http_code: 404
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                example: 404
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+    get:
+      tags:
+        - "Alerts"
+      summary: "Retrieves subscription"
+      description: "Retrieves subscription specified by the id in the path"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "id"
+          in: "path"
+          required: false
+          type: "integer"
+          description: "Subscription ID"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              subscriptions:
+                - id: 1
+                  type: "transaction"
+                  callback: "https://acme.server.com/push"
+                  createdAt: "2017-03-23T16:50:36.000Z"
+                  updatedAt: "2017-03-23T16:50:36.000Z"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              subscriptions:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                      description: "Returns subscription ID"
+                      example: 1
+                    type:
+                      type: "string"
+                      description: "Returns subscription type"
+                      example: "transaction"
+                    callback:
+                      type: "string"
+                      description: "Returns subscription callback URL"
+                      example: "https://acme.server.com/push"
+                    createdAt:
+                      type: "string"
+                      description: "Returns ISO 8601 representation of creation timestamp in UTC"
+                      example: "2017-03-23T16:50:36.000Z"
+                    updatedAt:
+                      type: "string"
+                      description: "Returns ISO 8601 representation of update timestamp in UTC"
+                      example: "2017-03-23T16:50:36.000Z"
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        404:
+          description: "Error - Not Found"
+          examples:
+            application/json:
+              http_code: 404
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                example: 404
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+    put:
+      tags:
+        - "Alerts"
+      summary: "Updates subscription"
+      description: "Updates a specific subscription record"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "id"
+          in: "path"
+          required: false
+          type: "integer"
+          description: "Subscription ID"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            properties:
+              callback:
+                type: "string"
+                description: "HTTPS Callback URL"
+                example: "https://acme.server.com/push"
+              types:
+                type: "string"
+                description: "Alert type"
+                example: "transaction"
+          description: "Request object"
+      responses:
+        204:
+          description: "Success - Responds successfully with the field(s) created/updated"
+          examples:
+            application/json:
+              http_code: 204
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                description: "Returns 204"
+                example: 204
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        404:
+          description: "Error - Not Found"
+          examples:
+            application/json:
+              http_code: 404
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                example: 404
+        405:
+          description: "Error - Method not allowed"
+          examples:
+            application/json:
+              http_code: 405
+          schema:
+            properties:
+              http_code:
+                type: "integer"
+                example: 405
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: callback"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: callback"
+                example: "Invalid Resource: callback"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: types"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: types"
+                example: "Invalid Resource: types"
+  /api/v1/subscriptions:
+    post:
+      tags:
+        - "Alerts"
+      summary: "Register subscription"
+      description: "Register a callback URL to receive specific types of alerts"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "callback"
+              - "types"
+            properties:
+              callback:
+                type: "string"
+                description: "HTTPS Callback URL"
+                example: "https://acme.server.com/push"
+              types:
+                type: "array"
+                description: "At least one alert type from [transaction, admin]"
+                items:
+                  type: "string"
+                  example: "transaction"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              subscriptions:
+                - id: 1
+                  type: "transaction"
+                  callback: "https://acme.server.com/push"
+                  createdAt: "2017-03-23T16:50:36.000Z"
+                  updatedAt: "2017-03-23T16:50:36.000Z"
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              subscriptions:
+                type: "array"
+                description: "Returns an array of objects of newly created subscription resources"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                      description: "Returns subscription ID"
+                      example: 1
+                    type:
+                      type: "string"
+                      description: "Returns subscription type"
+                      example: "transaction"
+                    callback:
+                      type: "string"
+                      description: "Returns subscription callback URL"
+                      example: "https://acme.server.com/push"
+                    createdAt:
+                      type: "string"
+                      description: "Returns ISO 8601 representation of creation timestamp in UTC"
+                      example: "2017-03-23T16:50:36.000Z"
+                    updatedAt:
+                      type: "string"
+                      description: "Returns ISO 8601 representation of update timestamp in UTC"
+                      example: "2017-03-23T16:50:36.000Z"
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: callback"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Returns Missing Resource: callback"
+                example: "Missing Resource: callback"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: callback"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: callback"
+                example: "Invalid Resource: callback"
+        400-C:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: types"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Returns Missing Resource: types"
+                example: "Missing Resource: types"
+        400-D:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: types"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: types"
+                example: "Invalid Resource: types"
+  /api/v1/history/getTransactionHistory:
+    post:
+      tags:
+        - "Core"
+      summary: "Retrieves transaction history"
+      description: "Retrieves transaction history"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+            properties:
+              hash:
+                description: "SHA-256 hash of card number"
+                type: "string"
+                example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+              start:
+                type: "integer"
+                description: "Start index of retrieved records - Default Value 0"
+                example: 0
+              limit:
+                type: "integer"
+                description: "Limit of retrieved records - Default Value 30"
+                example: 20
+              mode:
+                type: "string"
+                description: "Send date to search by date range"
+                example: "date"
+              start_date:
+                type: "string"
+                format: "date-time"
+                description: "Use with mode='date'. E.g. '2016-01-01 00:00:00'"
+                example: "2016-01-01 00:00:00"
+              end_date:
+                type: "string"
+                format: "date-time"
+                description: "Use with mode='date'. E.g. '2016-01-01 00:00:00'"
+                example: "2016-01-01 00:00:00"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds successfully"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              transactions:
+                - transaction_id: "deadbeef42-012345"
+                  amount: 100
+                  utc_datetime: "2016-01-01 00:00:00"
+                  currencyCode: "076"
+                  merchant_type: null
+                  merchant_name: "McDonald's Times Square"
+                  receipt_url: null
+                  expense_type: null
+                  status: "Requested"
+                  type: "POS"
+                  hash: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+                  decisionDeclinedFields:
+                    - "cardEnabled"
+                    - "paymentChannel"
+                    - "merchantCountry"
+                  isRecurring: false
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              transactions:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    transaction_id:
+                      type: "string"
+                      description: "Transaction unique identifier"
+                      example: "deadbeef42-012345"
+                    amount:
+                      type: "number"
+                      description: "Transaction amount"
+                      example: 100
+                    utc_datetime:
+                      type: "string"
+                      format: "date-time"
+                      description: "Timestamp of pending authorization"
+                      example: "2016-01-01 00:00:00"
+                    currencyCode:
+                      type: "string"
+                      description: "ISO-4217 numeric currency code"
+                      example: "076"
+                    merchant_type:
+                      type: "string"
+                      description: "Merchant type"
+                      example: "MerchantType"
+                    merchant_name:
+                      type: "string"
+                      description: "Merchant name"
+                      example: "McDonald's Times Square"
+                    receipt_url:
+                      type: "string"
+                      description: "Receipt URL for user-uploaded image"
+                      example: "https://www.acme.com/receipt/3434adsfasf24.png"
+                    expense_type:
+                      type: "string"
+                      description: "Transaction expense type (0 - None, 1 - Personal, 2 - Business)"
+                      example: "0"
+                    status:
+                      type: "string"
+                      description: "Values can be 'Requested', 'Approved', 'Declined', or 'Reversed'"
+                      example: "Requested"
+                    type:
+                      type: "string"
+                      description: "Transaction channel description (POS, ATM, ECOM, MOTO)"
+                      example: "POS"
+                    hash:
+                      description: "SHA-256 hash of card number"
+                      type: "string"
+                      example: "5b82beb2ab7084d5dc2f8239f1f16fcff8d6b636b8852479534e3b195222903a"
+                    decisionDeclinedFields:
+                      type: "array"
+                      items:
+                        type: "string"
+                        description: "Contains reasons for transaction decision. If status=Declined, will show fields that failed from the set of [paymentChannel, merchantCountry, cardEnabled]"
+                        example: "cardEnabled"
+                    isRecurring:
+                      type: "boolean"
+                      example: true
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                type: "string"
+                description: "Returns Missing Resource: Card Hash"
+                example: "Missing Resource: Card Hash"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Invalid Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns Invalid Resource: Card Hash"
+                example: "Invalid Resource: Card Hash"
+  /api/v1/cardSettings/changePaymentChannels:
+    post:
+      tags:
+        - "Card Controls"
+      summary: "Enable or disable payment channels"
+      description: "Enable or disable the different payment channel options of a card. By default, all payment channels are enabled for card use. If a channel is disabled, any transaction from that card for the channel is blocked. Note that some channels might not be applicable. The standard ones are: ATM, POS, ECOM, and MOTO."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+            properties:
+              hash:
+                type: "string"
+                description: "SHA-256 hash of card number"
+                example: "4533117029874ead3cca91938512621cf54a99b9a82827af9708c51d5d943e78"
+              ATM:
+                type: "integer"
+                format: "int32"
+                default: 1
+                minimum: 0
+                maximum: 1
+                description: "Allow automated teller machine (ATM) transactions. Important Note, At least 1 payment channel from the set of { POS, ATM, ECOM, MOTO } is required."
+                example: 1
+              ECOM:
+                type: "integer"
+                format: "int32"
+                default: 1
+                minimum: 0
+                maximum: 1
+                description: "Allow e-commerce transactions. Important Note, At least 1 payment channel from the set of { POS, ATM, ECOM, MOTO } is required."
+                example: 1
+              POS:
+                type: "integer"
+                format: "int32"
+                default: 1
+                minimum: 0
+                maximum: 1
+                description: "Allow point-of-sale (POS) transactions. Important Note, At least 1 payment channel from the set of { POS, ATM, ECOM, MOTO } is required."
+                example: 1
+              MOTO:
+                type: "integer"
+                format: "int32"
+                default: 1
+                minimum: 0
+                maximum: 1
+                description: "Allow mail-order/phone-order (MOTO) transactions. Important Note, At least 1 payment channel from the set of { POS, ATM, ECOM, MOTO } is required."
+                example: 1
+          description: "Request object"
+      responses:
+        201:
+          description: "Success - Responds with the card's payment channel settings"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              ATM: 1
+              ECOM: 1
+              POS: 1
+              MOTO: 0
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              ATM:
+                type: "integer"
+                format: "int32"
+                description: "Allow automated teller machine (ATM) transactions"
+                example: 1
+              ECOM:
+                type: "integer"
+                format: "int32"
+                description: "Allow e-commerce transactions"
+                example: 1
+              POS:
+                type: "integer"
+                format: "int32"
+                description: "Allow point-of-sale (POS) transactions"
+                example: 1
+              MOTO:
+                type: "integer"
+                format: "int32"
+                description: "Allow mail-order/phone-order (MOTO) transactions"
+                example: 1
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                description: "Returns Missing Resource: Card Hash"
+                example: "Missing Resource: Card Hash"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                description: "Returns Invalid Resource: Card Hash"
+                example: "Invalid Resource: Card Hash"
+        400-C:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: ATM, ECOM, POS, MOTO"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101 for missing resources, 102 for invalid resources"
+                example: 101
+              status_message:
+                description: "Returns Missing Resource: ATM, ECOM, POS, MOTO Note -  At least 1 payment channel from the set of { POS, ATM, ECOM, MOTO } is required."
+                example: "Missing Resource: ATM, ECOM, POS, MOTO"
+  /api/v1/cardSettings/getPaymentChannels:
+    post:
+      tags:
+        - "Card Controls"
+      summary: "Retrieve card's payment channels"
+      description: "Respond with the card's payment channels"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "X-Auth-Token"
+          description: "The authorization token sent for every API request"
+          in: "header"
+          required: true
+          type: "string"
+        - name: "body"
+          required: true
+          in: "body"
+          schema:
+            required:
+              - "hash"
+            properties:
+              hash:
+                type: "string"
+                description: "SHA-256 hash of card number"
+                example: "4533117029874ead3cca91938512621cf54a99b9a82827af9708c51d5d943e78"
+          description: "Request object"
+      responses:
+        200:
+          description: "Success - Responds with the card's payment channel settings"
+          examples:
+            application/json:
+              status: "SUCCESS"
+              http_code: 200
+              status_code: 0
+              payment_channels:
+                ATM: 1
+                ECOM: 1
+                POS: 1
+                MOTO: 0
+          schema:
+            properties:
+              status:
+                type: "string"
+                example: "SUCCESS"
+                description: "Returns SUCCESS"
+              http_code:
+                type: "integer"
+                example: 200
+                description: "Returns HTTP code 200"
+              status_code:
+                type: "integer"
+                description: "Returns status code 0"
+                example: 0
+              payment_channels:
+                description: "Returns payment channels"
+                properties:
+                  ATM:
+                    type: "integer"
+                    format: "int32"
+                    description: "Automated teller machine (ATM) transactions"
+                    example: 1
+                  ECOM:
+                    type: "integer"
+                    format: "int32"
+                    description: "E-commerce transactions"
+                    example: 1
+                  POS:
+                    type: "integer"
+                    format: "int32"
+                    description: "Point-of-sale (POS) transactions"
+                    example: 1
+                  MOTO:
+                    type: "integer"
+                    format: "int32"
+                    description: "Mail-order/phone-order (MOTO) transactions"
+                    example: 1
+        401:
+          description: "Error - Missing or invalid X-Auth-Token header"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 401
+              status_code: 102
+              status_message: "This request requires authentication"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns 401"
+                example: 401
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                type: "string"
+                description: "Returns message: This request requires authentication"
+                example: "This request requires authentication"
+        500:
+          description: "Error - Internal server error"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 500
+              status_code: 100
+              status_message: "Internal server error"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns status ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 500"
+                example: 500
+              status_code:
+                type: "integer"
+                description: "Returns status code 100"
+                example: 100
+              status_message:
+                type: "string"
+                description: "Returns status message"
+                example: "Internal server error"
+        400-A:
+          description: "Error - Validation on missing request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 101
+              status_message: "Missing Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 101"
+                example: 101
+              status_message:
+                description: "Returns Missing Resource: Card Hash"
+                example: "Missing Resource: Card Hash"
+        400-B:
+          description: "Error - Validation on invalid request parameter"
+          examples:
+            application/json:
+              status: "ERROR"
+              http_code: 400
+              status_code: 102
+              status_message: "Invalid Resource: Card Hash"
+          schema:
+            properties:
+              status:
+                type: "string"
+                description: "Returns ERROR"
+                example: "ERROR"
+              http_code:
+                type: "integer"
+                description: "Returns HTTP code 400"
+                example: 400
+              status_code:
+                type: "integer"
+                description: "Returns 102"
+                example: 102
+              status_message:
+                description: "Returns Invalid Resource: Card Hash"
+                example: "Invalid Resource: Card Hash"
+securityDefinitions: {}
+tags: []
+definitions: {}
