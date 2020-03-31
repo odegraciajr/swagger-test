@@ -1,7 +1,7 @@
 info:
   title: "Washington"
   version: "6.2.1"
-  description: "API Documentation for Central server."
+  description: "API Documentation for Central server. Update"
 swagger: "2.0"
 host: fp-washington-sandbox.firstperformance.com
 schemes:
